@@ -1,0 +1,31 @@
+[tool.poetry]
+name = "spajam-api-2021"
+version = "0.1.0"
+description = ""
+authors = ["HideBa <baba.papa1120.ba@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+fastapi = "^0.68.1"
+uvicorn = {extras = ["standard"], version = "^0.15.0" }
+pydantic = "^1.8.2"
+SQLAlchemy = "^1.4.25"
+alembic = "^1.7.3"
+python-multipart = "^0.0.5"
+psycopg-binary = "^3.0b1"
+boto3 = "^1.18.58"
+boto3-stubs = {extras = ["rekognition"], version = "^1.18.58"}
+loguru = "^0.5.3"
+
+[tool.poetry.dev-dependencies]
+black = "^21.9b0"
+flake8 = "^3.9.2"
+mypy = "^0.910"
+pytest = "^6.2.5"
+isort = "^5.9.3"
+pre-commit = "^2.15.0"
+bandit = "^1.7.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
