@@ -14,13 +14,13 @@
   "python.linting.banditEnabled": true,
   "python.terminal.activateEnvInCurrentTerminal": true,
   "python.testing.pytestEnabled": true,
-  "python.pythonPath": "/Users/HideBa/private_proj/spajam/spajam-api-2021/.venv/bin/python",
+  "python.pythonPath": ".venv/bin/python",
   "python.languageServer": "Pylance",
-  "python.defaultInterpreterPath": "/Users/HideBa/private_proj/spajam/spajam-api-2021/.venv/bin/python",
+  "python.defaultInterpreterPath": ".venv/bin/python",
   "python.autoComplete.extraPaths": [
-  "/Users/HideBa/private_proj/spajam/spajam-api-2021/.venv/lib/python3.9/site-packages"
+  ".venv/lib/python3.9/site-packages"
   ],
   "python.analysis.extraPaths": [
-    "/Users/HideBa/private_proj/spajam/spajam-api-2021/.venv/lib/python3.9/site-packages"
+    ".venv/lib/python3.9/site-packages"
   ]
 }

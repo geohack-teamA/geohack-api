@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "spajam-api-2021"
+name = "geohack"
 version = "0.1.0"
 description = ""
 authors = ["HideBa <baba.papa1120.ba@gmail.com>"]

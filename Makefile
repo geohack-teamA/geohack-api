@@ -10,10 +10,10 @@ update:
 
 .PHONY: lint
 lint:
-	poetry run flake8 .
+	poetry run flake8 ./app
 
 format:
-	poerty run black .
+	poetry run black ./**/*.py
 
 sort:
 	poetry run sort .

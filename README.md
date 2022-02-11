@@ -36,3 +36,7 @@ To run shell on venv
 ```
 poetry shell
 ```
+
+## For developers
+Run github actions locally
+install [act](https://github.com/nektos/act) and
