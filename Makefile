@@ -16,7 +16,7 @@ format:
 	poetry run black ./**/*.py
 
 sort:
-	poetry run sort .
+	poetry run sort ./**/*.py
 
 run-db:
 	docker-compose up -d db

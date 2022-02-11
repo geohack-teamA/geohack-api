@@ -23,8 +23,8 @@ jobs:
         run: poetry install
       - name: Lint, format and sort
         run: |
-          poetry run flake8 .
-          poetry run black .
-          poetry run sort .
+          make lint
+          make format
+          make sort
       - name: Test with pytest
         run: poetry run pytest
