@@ -32,6 +32,9 @@ MIN_CONNECTIONS_COUNT: int = config("MIN_CONNECTIONS_COUNT", cast=int, default=1
 
 
 # *****Externals*****
+# *****LINE*****
+LINE_CHANNEL_ACCESS_TOKEN: str = config("LINE_CHANNEL_ACCESS_TOKEN", default="")
+LINE_CHANNEL_SECRET: str = config("LINE_CHANNEL_SECRET", default="")
 
 # *****Logging*****
 LOGGING_LEVEL = logging.DEBUG if DEBUG else logging.INFO
