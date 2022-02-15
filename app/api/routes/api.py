@@ -1,4 +1,7 @@
+from sqlalchemy import false
 from aiohttp import request
+from app.models.alert_level import AlertLevel
+from app.schemas.evacuation import Evacuation
 from fastapi import APIRouter
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError, LineBotApiError
@@ -15,8 +18,22 @@ handler = WebhookHandler(LINE_CHANNEL_SECRET)
 
 @router.get("/")
 async def hello():
-    try:
-        line_bot_api.broadcast(TextSendMessage(text="Hello!!!"))
-    except LineBotApiError as e:
-        print(e)
+    # try:
+    #     line_bot_api.broadcast(
+    #         TextSendMessage(text="Hello!!!, http://localhost:3000/form")
+    #     )
+    # except LineBotApiError as e:
+    #     print(e)
     return {"text": "hello"}
+
+
+@router.get("/form", response_model=Evacuation)
+async def form():
+    should_evacuate = Evacuation(should_evacuate=False)
+    return should_evacuate
+    # return {"hoge": "fuga"}
+
+
+def get_alert_level() -> AlertLevel:
+    alert_level = AlertLevel.THREE
+    return alert_level
