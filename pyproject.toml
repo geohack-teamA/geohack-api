@@ -13,10 +13,14 @@ SQLAlchemy = "^1.4.25"
 alembic = "^1.7.3"
 python-multipart = "^0.0.5"
 psycopg-binary = "^3.0b1"
-boto3 = "^1.18.58"
-boto3-stubs = {extras = ["rekognition"], version = "^1.18.58"}
 loguru = "^0.5.3"
 line-bot-sdk = "^2.1.0"
+pandas = "^1.4.1"
+geopandas = "^0.10.2"
+jismesh = "^2.1.0"
+Shapely = "^1.8.0"
+geopy = "^2.2.0"
+google-cloud-storage = "^2.1.0"
 
 [tool.poetry.dev-dependencies]
 black = "^21.9b0"

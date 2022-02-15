@@ -129,3 +129,6 @@ dmypy.json
 .pyre/
 
 pgdata/
+
+# GCP
+gcs_key.json
