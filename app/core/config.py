@@ -36,6 +36,12 @@ MIN_CONNECTIONS_COUNT: int = config("MIN_CONNECTIONS_COUNT", cast=int, default=1
 LINE_CHANNEL_ACCESS_TOKEN: str = config("LINE_CHANNEL_ACCESS_TOKEN", default="")
 LINE_CHANNEL_SECRET: str = config("LINE_CHANNEL_SECRET", default="")
 
+# *****GoogleCloudPlatform*****
+GCP_STORAGE_BUCKET_NAME: str = config(
+    "GCP_STORAGE_BUCKET_NAME", default="geohack-static"
+)
+
+
 # *****Logging*****
 LOGGING_LEVEL = logging.DEBUG if DEBUG else logging.INFO
 LOGGERS = ("uvicorn.asgi", "uvicorn.access")

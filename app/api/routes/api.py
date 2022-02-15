@@ -1,5 +1,6 @@
 from sqlalchemy import false
 from aiohttp import request
+from app.dependencies.gcp.storage import GoogleCloudStorage
 from app.models.alert_level import AlertLevel
 from app.schemas.evacuation import Evacuation
 from fastapi import APIRouter
@@ -32,6 +33,13 @@ async def form():
     should_evacuate = Evacuation(should_evacuate=False)
     return should_evacuate
     # return {"hoge": "fuga"}
+
+
+@router.get("/static")
+async def test():
+    storage = GoogleCloudStorage()
+    storage.ls()
+    return {"hello": "Helo"}
 
 
 def get_alert_level() -> AlertLevel:
