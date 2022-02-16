@@ -33,7 +33,6 @@ async def hello():
 async def form():
     should_evacuate = Evacuation(should_evacuate=False)
     return should_evacuate
-    # return {"hoge": "fuga"}
 
 
 @router.get("/test")
@@ -43,12 +42,5 @@ async def test():
     lng = 139.6295136313999
     mesh_level = 3
     analyzer = GeospatialAnalyzer(storage, lat, lng, mesh_level)
-    # analyzer.get_building_by_position()
-    analyzer.get_nearest_shelter()
-    # analyzer.analyze()
+    analyzer.get_building_by_position()
     return {"hello": "Helo"}
-
-
-def get_alert_level() -> AlertLevel:
-    alert_level = AlertLevel.THREE
-    return alert_level

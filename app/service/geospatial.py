@@ -1,16 +1,38 @@
 from typing import Any, Optional
 import warnings
+import pandas as pd
+import geopandas as gpd
+import jismesh.utils as ju
+from shapely.geometry import *  # noqa
+from geopy.distance import geodesic
 
 from app.dependencies.gcp.storage import GoogleCloudStorage
 from numpy import uint
 
 warnings.simplefilter("ignore")
 
-import pandas as pd
-import geopandas as gpd
-import jismesh.utils as ju
-from shapely.geometry import *
-from geopy.distance import geodesic
+
+class Shelter:
+    def __init__(self, name: str, lat: float, lng: float):
+        self.name = name
+        self.lat = lat
+        self.lng = lng
+
+
+class Building:
+    def __init__(
+        self,
+        id: str,
+        storeys_above_ground: float,
+        height: float,
+        depth: float,
+        depth_rank: float,
+    ):
+        self.id = id
+        self.storeys_above_ground = storeys_above_ground
+        self.height = height
+        self.depth = depth
+        self.depth_rank = depth_rank
 
 
 class GeospatialAnalyzer:
@@ -44,7 +66,6 @@ class GeospatialAnalyzer:
         geometry_file = self.storage().get_blob_by_name(
             f"buildings/kawasaki/bldg_{meshcode}.geojson"
         )
-        # file = gpd.read_file(f"gs://geohack-static/buildings/kawasaki/bldg_{meshcode}.geojson")
         return geometry_file
 
     def get_shelter_file(self):
@@ -58,7 +79,7 @@ class GeospatialAnalyzer:
         return meshcode
 
     # ******Core logics******
-    def get_building_by_position(self):
+    def get_building_by_position(self) -> Optional[Building]:
         mesh_code = GeospatialAnalyzer.get_meshcode(
             self.lat(), self.lng(), self.mesh_level()
         )
@@ -71,9 +92,15 @@ class GeospatialAnalyzer:
         point = Point(self.lng(), self.lat())
         position = gpd.GeoDataFrame({"geometry": point}, [0])
         result = gpd.sjoin(position, geo_data_frame, how="inner", op="within")
-        return result
+        building = result.sort_values(by="depth", ascending=False).iloc[0]
+        building_id = building[2]
+        storeys_above_ground = building[3]
+        height = building[4]
+        depth = building[5]
+        depth_rank = building[6]
+        return Building(building_id, storeys_above_ground, height, depth, depth_rank)
 
-    def get_nearest_shelter(self):
+    def get_nearest_shelter(self) -> Optional[Shelter]:
         shelter_blob = self.get_shelter_file()
         if shelter_blob is None:
             return None
@@ -86,65 +113,15 @@ class GeospatialAnalyzer:
             lambda x: geodesic([x["lat"], x["lon"]], [x["gps_lat"], x["gps_lon"]]).m,
             axis=1,
         )
-        building_name = data_frame.sort_values(by="distance").iloc[0, 1]
-        print("-----------", building_name)
-        # shelter_csv = pd.read_csv(str(shelter_blob, "UTF-8"))
+        nearest_shelter = data_frame.sort_values(by="distance").iloc[0]
+        shelter_name = nearest_shelter[1]
+        shelter_lat = nearest_shelter[2]
+        shelter_lng = nearest_shelter[3]
+        return Shelter(shelter_name, shelter_lat, shelter_lng)
 
-    def analyze(self):
-        nearest_building = self.get_building_by_position()
-        if nearest_building is None:
-            return self.get_nearest_shelter()
-        else:
-            return nearest_building
-
-
-def run(bldg_geojson, shelter, gps_lon, gps_lat):
-    evacuee_gps = gpd.GeoDataFrame({"geometry": Point(gps_lon, gps_lat)}, [0])
-    result = gpd.sjoin(evacuee_gps, bldg_geojson, how="inner", op="within")
-
-    if len(result) == 0:
-        shelter["gps_lat"] = gps_lat
-        shelter["gps_lon"] = gps_lon
-        shelter["distance"] = shelter.apply(
-            lambda x: geodesic([x["lat"], x["lon"]], [x["gps_lat"], x["gps_lon"]]).m,
-            axis=1,
-        )
-        building_name = shelter.sort_values(by="distance").iloc[0, 1]
-
-        return {
-            "building": name,
-            "storeysAboveGround": None,
-            "height": None,
-            "depth": None,
-            "depth_rank": None,
-        }
-
-    else:
-        evacuee_gps = gpd.GeoDataFrame({"geometry": Point(gps_lon, gps_lat)}, [0])
-        result = gpd.sjoin(evacuee_gps, bldg_geojson, how="inner", op="within")
-
-        bulding_id = result.sort_values(by="depth", ascending=False).iloc[0, 2]
-        storeysAboveGround = result.sort_values(by="depth", ascending=False).iloc[0, 3]
-        height = result.sort_values(by="depth", ascending=False).iloc[0, 4]
-        depth = result.sort_values(by="depth", ascending=False).iloc[0, 5]
-        depth_rank = result.sort_values(by="depth", ascending=False).iloc[0, 6]
-
-        bulding_id = result.sort_values(by="depth", ascending=False).iloc[0, 2]
-        return {
-            "building": bulding_id,
-            "storeysAboveGround": storeysAboveGround,
-            "height": height,
-            "depth": depth,
-            "depth_rank": depth_rank,
-        }
-
-
-if __name__ == "__main__":
-    gps_lat = 35.60044590382672
-    gps_lon = 139.6295136313999
-    meshcode = ju.to_meshcode(gps_lat, gps_lon, 3)
-    bldg_geojson = gpd.read_file(f"../data/input/bldg_geojson/bldg_{meshcode}.geojson")
-    shelter = pd.read_csv("../data/input/shelter.csv")
-
-    result = run(bldg_geojson, shelter, gps_lon, gps_lat)
-    print(result)
+    # def analyze(self):
+    #     nearest_building = self.get_building_by_position()
+    #     if nearest_building is None:
+    #         return self.get_nearest_shelter()
+    #     else:
+    #         return nearest_building
