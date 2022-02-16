@@ -36,13 +36,11 @@ class Building:
 
 
 class GeospatialAnalyzer:
-    def __init__(
-        self, storage: GoogleCloudStorage, lat: float, lng: float, mesh_level: uint
-    ) -> None:
+    def __init__(self, storage: GoogleCloudStorage, mesh_level: uint) -> None:
         self.__storage = storage
         self.__bucket = self.__storage.bucket()
-        self.__lat = lat
-        self.__lng = lng
+        # self.__lat = lat
+        # self.__lng = lng
         self.__mesh_level = mesh_level
 
     # ******Getter******
@@ -52,11 +50,11 @@ class GeospatialAnalyzer:
     def bucket(self):
         return self.__bucket
 
-    def lat(self):
-        return self.__lat
+    # def lat(self):
+    #     return self.__lat
 
-    def lng(self):
-        return self.__lng
+    # def lng(self):
+    #     return self.__lng
 
     def mesh_level(self):
         return self.__mesh_level
@@ -79,17 +77,15 @@ class GeospatialAnalyzer:
         return meshcode
 
     # ******Core logics******
-    def get_building_by_position(self) -> Optional[Building]:
-        mesh_code = GeospatialAnalyzer.get_meshcode(
-            self.lat(), self.lng(), self.mesh_level()
-        )
+    def get_building_by_position(self, lat: float, lng: float) -> Optional[Building]:
+        mesh_code = GeospatialAnalyzer.get_meshcode(lat, lng, self.mesh_level())
         geometry_file = self.get_geometric_file_by_meshcode(mesh_code)
         if geometry_file is None:
             return None
         geo_data_frame = gpd.read_file(
             GoogleCloudStorage.convert_blob_to_byte_string(geometry_file)
         )
-        point = Point(self.lng(), self.lat())
+        point = Point(lng, lat)
         position = gpd.GeoDataFrame({"geometry": point}, [0])
         result = gpd.sjoin(position, geo_data_frame, how="inner", op="within")
         building = result.sort_values(by="depth", ascending=False).iloc[0]
@@ -100,15 +96,15 @@ class GeospatialAnalyzer:
         depth_rank = building[6]
         return Building(building_id, storeys_above_ground, height, depth, depth_rank)
 
-    def get_nearest_shelter(self) -> Optional[Shelter]:
+    def get_nearest_shelter(self, lat: float, lng: float) -> Optional[Shelter]:
         shelter_blob = self.get_shelter_file()
         if shelter_blob is None:
             return None
         data_frame = pd.read_csv(
             GoogleCloudStorage.convert_blob_to_byte_string(shelter_blob)
         )
-        data_frame["gps_lat"] = self.lat()
-        data_frame["gps_lon"] = self.lng()
+        data_frame["gps_lat"] = lat
+        data_frame["gps_lon"] = lng
         data_frame["distance"] = data_frame.apply(
             lambda x: geodesic([x["lat"], x["lon"]], [x["gps_lat"], x["gps_lon"]]).m,
             axis=1,
