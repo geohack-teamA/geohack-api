@@ -1,3 +1,4 @@
+from io import BytesIO
 from typing import Any, List, Optional
 from app.core.config import GCP_STORAGE_BUCKET_NAME
 from google.cloud import storage
@@ -24,7 +25,15 @@ class GoogleCloudStorage:
         return b_list
 
     def get_blob_by_name(self, file_path: str) -> Optional[storage.Blob]:
-        return self.bucket().get_blob(file_path)
+        return self.bucket().get_blob(file_path, self.client())
+
+    # TODO: change method name
+    @staticmethod
+    def convert_blob_to_byte_string(file: storage.Blob):
+        if file is not None:
+            return BytesIO(file.download_as_string())
+        else:
+            return None
 
     # def get_text_file_by_name(self, file_path: str) -> str:
     #     return self.bucket()

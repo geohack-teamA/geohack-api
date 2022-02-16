@@ -3,6 +3,7 @@ from aiohttp import request
 from app.dependencies.gcp.storage import GoogleCloudStorage
 from app.models.alert_level import AlertLevel
 from app.schemas.evacuation import Evacuation
+from app.service.geospatial import GeospatialAnalyzer
 from fastapi import APIRouter
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError, LineBotApiError
@@ -35,10 +36,16 @@ async def form():
     # return {"hoge": "fuga"}
 
 
-@router.get("/static")
+@router.get("/test")
 async def test():
     storage = GoogleCloudStorage()
-    storage.ls()
+    lat = 35.60044590382672
+    lng = 139.6295136313999
+    mesh_level = 3
+    analyzer = GeospatialAnalyzer(storage, lat, lng, mesh_level)
+    # analyzer.get_building_by_position()
+    analyzer.get_nearest_shelter()
+    # analyzer.analyze()
     return {"hello": "Helo"}
 
 

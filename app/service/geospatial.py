@@ -23,6 +23,7 @@ class GeospatialAnalyzer:
         self.__lng = lng
         self.__mesh_level = mesh_level
 
+    # ******Getter******
     def storage(self) -> GoogleCloudStorage:
         return self.__storage
 
@@ -38,14 +39,16 @@ class GeospatialAnalyzer:
     def mesh_level(self):
         return self.__mesh_level
 
+    # ******Get files******
     def get_geometric_file_by_meshcode(self, meshcode: str):
         geometry_file = self.storage().get_blob_by_name(
-            f"/buidlings/kawasaki/bldg_{meshcode}.geojson"
+            f"buildings/kawasaki/bldg_{meshcode}.geojson"
         )
+        # file = gpd.read_file(f"gs://geohack-static/buildings/kawasaki/bldg_{meshcode}.geojson")
         return geometry_file
 
     def get_shelter_file(self):
-        shelter_file = self.storage().get_blob_by_name("/shelters/kawasaki/shelter.csv")
+        shelter_file = self.storage().get_blob_by_name("shelters/kawasaki/shelter.csv")
         return shelter_file
 
     # TODO: improve typing here
@@ -54,22 +57,45 @@ class GeospatialAnalyzer:
         meshcode = ju.to_meshcode(lat, lng, level)
         return meshcode
 
+    # ******Core logics******
     def get_building_by_position(self):
         mesh_code = GeospatialAnalyzer.get_meshcode(
             self.lat(), self.lng(), self.mesh_level()
         )
         geometry_file = self.get_geometric_file_by_meshcode(mesh_code)
-        position = gpd.GeoDataFrame({"geometry": Point(self.lng(), self.lat())}, [0])
-        result = gpd.sjoin(position, geometry_file, how="inner", op="within")
+        if geometry_file is None:
+            return None
+        geo_data_frame = gpd.read_file(
+            GoogleCloudStorage.convert_blob_to_byte_string(geometry_file)
+        )
+        point = Point(self.lng(), self.lat())
+        position = gpd.GeoDataFrame({"geometry": point}, [0])
+        result = gpd.sjoin(position, geo_data_frame, how="inner", op="within")
+        return result
 
     def get_nearest_shelter(self):
         shelter_blob = self.get_shelter_file()
-        if shelter_blob == None:
+        if shelter_blob is None:
             return None
+        data_frame = pd.read_csv(
+            GoogleCloudStorage.convert_blob_to_byte_string(shelter_blob)
+        )
+        data_frame["gps_lat"] = self.lat()
+        data_frame["gps_lon"] = self.lng()
+        data_frame["distance"] = data_frame.apply(
+            lambda x: geodesic([x["lat"], x["lon"]], [x["gps_lat"], x["gps_lon"]]).m,
+            axis=1,
+        )
+        building_name = data_frame.sort_values(by="distance").iloc[0, 1]
+        print("-----------", building_name)
         # shelter_csv = pd.read_csv(str(shelter_blob, "UTF-8"))
 
     def analyze(self):
-        pass
+        nearest_building = self.get_building_by_position()
+        if nearest_building is None:
+            return self.get_nearest_shelter()
+        else:
+            return nearest_building
 
 
 def run(bldg_geojson, shelter, gps_lon, gps_lat):
