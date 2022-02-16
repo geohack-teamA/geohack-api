@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any, List, Optional
 from app.core.config import GCP_STORAGE_BUCKET_NAME
 from google.cloud import storage
 
@@ -22,3 +22,9 @@ class GoogleCloudStorage:
         b_list = list(self.client().list_blobs(self.bucket()))
         print(b_list)
         return b_list
+
+    def get_blob_by_name(self, file_path: str) -> Optional[storage.Blob]:
+        return self.bucket().get_blob(file_path)
+
+    # def get_text_file_by_name(self, file_path: str) -> str:
+    #     return self.bucket()
