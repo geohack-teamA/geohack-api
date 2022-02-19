@@ -104,15 +104,15 @@ class UserEvacuationJudgement:
         if user_building is None:
             if nearest_shelter is None:
                 return False, "そのまま自宅待機してください", nearest_shelter, user_building
-            return True, "避難してください", nearest_shelter, None
+            return True, "屋外にいますか？今すぐ避難してください", nearest_shelter, None
         if self.may_user_building_been_broken():
             if get_alert_level() == AlertLevel.THREE:
                 if self.does_user_have_difficult_family():
-                    return True, "避難してください", None, user_building
+                    return True, "屋外にいますか？今すぐ避難してください", None, user_building
                 else:
-                    return True, "避難してください", nearest_shelter, None
+                    return True, "屋外にいますか？今すぐ避難してください", nearest_shelter, None
             else:
-                return True, "避難してください", nearest_shelter, None
+                return True, "屋外にいますか？今すぐ避難してください", nearest_shelter, None
         if self.is_building_depth_less_than_flood_level():
             if self.is_current_level_less_than_flood_level():
                 if self.has_enough_stock():
@@ -122,7 +122,7 @@ class UserEvacuationJudgement:
                         if self.does_user_have_difficult_family():
                             return False, "そのまま自宅待機してください", None, user_building
                         else:
-                            return True, "避難してください", nearest_shelter, None
+                            return True, "屋外にいますか？今すぐ避難してください", nearest_shelter, None
                     else:
                         return False, "そのまま自宅待機してください", None, user_building
         return False, "そのまま自宅待機してください", None, user_building
