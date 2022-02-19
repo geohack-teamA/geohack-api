@@ -81,6 +81,14 @@ async def analyze(evacuation_req: EvacuationRequest):
         nearestShelter=None
         if shelter is None
         else Shelter(name=shelter.name, lat=shelter.lat, lng=shelter.lng),
-        userBuilding=None if building is None else Building(),
+        userBuilding=None
+        if building is None
+        else Building(
+            id=building.id,
+            storeysAboveGround=building.storeys_above_ground,
+            height=building.height,
+            depth=building.depth,
+            depthRank=building.depth_rank,
+        ),
     )
     return result

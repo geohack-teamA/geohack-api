@@ -10,17 +10,17 @@ class Shelter(BaseModel):
 
 class Building(BaseModel):
     id: str
-    storeys_above_ground: float
+    storeysAboveGround: float
     height: float
     depth: float
-    depth_rank: float
+    depthRank: float
 
 
 class EvacuationResponse(BaseModel):
     shouldEvacuate: bool = False
     message: str = "hello"
     nearestShelter: Optional[Shelter] = None
-    # userBuilding: Optional[Building] = None
+    userBuilding: Optional[Building] = None
 
     class Config:
         arbitrary_types_allowed = True

@@ -85,7 +85,7 @@ class GeospatialAnalyzer:
         geo_data_frame = gpd.read_file(
             GoogleCloudStorage.convert_blob_to_byte_string(geometry_file)
         )
-        point = Point(lng, lat)
+        point = Point(lng, lat)  # noqa
         position = gpd.GeoDataFrame({"geometry": point}, [0])
         result = gpd.sjoin(position, geo_data_frame, how="inner", op="within")
         building = result.sort_values(by="depth", ascending=False).iloc[0]
@@ -101,7 +101,7 @@ class GeospatialAnalyzer:
         if shelter_blob is None:
             return None
         data_frame = pd.read_csv(
-            GoogleCloudStorage.convert_blob_to_byte_string(shelter_blob)
+            GoogleCloudStorage.convert_blob_to_byte_string(shelter_blob)  # noqa
         )
         data_frame["gps_lat"] = lat
         data_frame["gps_lon"] = lng
@@ -114,10 +114,3 @@ class GeospatialAnalyzer:
         shelter_lat = nearest_shelter[2]
         shelter_lng = nearest_shelter[3]
         return Shelter(shelter_name, shelter_lat, shelter_lng)
-
-    # def analyze(self):
-    #     nearest_building = self.get_building_by_position()
-    #     if nearest_building is None:
-    #         return self.get_nearest_shelter()
-    #     else:
-    #         return nearest_building
