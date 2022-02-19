@@ -24,7 +24,7 @@ jobs:
       - name: Configure docker to use the gcloud cli
         run: gcloud auth configure-docker --quiet
       - name: Build a docker image
-        run: docker build -t $IMAGE_GCP .
+        run: docker build --target prod -t $IMAGE_GCP .
       - name: Push the docker image to Container Registry
         run: docker push $IMAGE_GCP
       - name: Deploy to Cloud Run
