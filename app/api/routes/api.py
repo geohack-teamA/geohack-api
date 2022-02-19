@@ -49,11 +49,12 @@ async def form():
 @router.post("/analyze", response_model=EvacuationResponse)
 async def analyze(evacuation_req: EvacuationRequest):
     storage = GoogleCloudStorage()
-    lat = 35.60044590382672
-    lng = 139.6295136313999
-    current_floor_level = 4
-    has_difficulty_with_family = False
-    enough_stock = False
+    lat = evacuation_req.lat
+    lng = evacuation_req.lng
+    current_floor_level = evacuation_req.currentLevel
+    has_difficulty_with_family = evacuation_req.hasDifficultFamily
+    enough_stock = evacuation_req.hasEnoughStock
+    has_safe_relative = evacuation_req.hasSafeRelative
     mesh_level = 3
     print("lat----------", evacuation_req.lat)
     geospatia_analyzer = GeospatialAnalyzer(storage, mesh_level)
