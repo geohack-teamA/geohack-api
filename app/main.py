@@ -7,13 +7,6 @@ from app.core.config import DEBUG, PROJECT_NAME
 
 def get_app() -> FastAPI:
     app = FastAPI(title=PROJECT_NAME, debug=DEBUG)
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=["*"],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
 
     app.include_router(api_router)
     # app.include_router(api_router, prefix=API_PREFIX)
@@ -22,3 +15,10 @@ def get_app() -> FastAPI:
 
 
 app = get_app()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
