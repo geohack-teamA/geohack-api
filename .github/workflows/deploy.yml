@@ -33,10 +33,9 @@ jobs:
       - name: Deploy to Cloud Run
         run: |
             gcloud run deploy ${{ secrets.GCP_RUN_SERVICE_NAME }} \
-              --image $IMAGE_GCP \
-              # --port $PORT \
+              --image asia.gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_RUN_SERVICE_NAME }}:${{ github.sha }} \
               --project ${{ secrets.GCP_PROJECT_ID }} \
-              --region $GCP_REGION \
+              --region asia-northeast1 \
               --platform=managed \
               --allow-unauthenticated \
               --quiet
