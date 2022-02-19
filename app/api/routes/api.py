@@ -1,5 +1,4 @@
 from app.dependencies.gcp.storage import GoogleCloudStorage
-from app.models.alert_level import AlertLevel
 from app.schemas.evacuation import (
     Building,
     EvacuationRequest,
@@ -46,7 +45,7 @@ async def analyze(evacuation_req: EvacuationRequest):
     has_safe_relative = evacuation_req.hasSafeRelative
     mesh_level = 3
 
-    geospatia_analyzer = GeospatialAnalyzer(storage, mesh_level)
+    geospatia_analyzer = GeospatialAnalyzer(storage, mesh_level)  # noqa
     user_attribute = UserAttribute(
         lat,
         lng,
