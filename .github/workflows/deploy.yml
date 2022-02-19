@@ -15,6 +15,8 @@ jobs:
     name: Deploy app to prod env
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v2
       - name: set up gcp
         uses: google-github-actions/setup-gcloud@master
         with:
