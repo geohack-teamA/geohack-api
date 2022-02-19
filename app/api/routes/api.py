@@ -27,7 +27,7 @@ async def notify():
     try:
         line_bot_api.broadcast(
             TextSendMessage(
-                text="近所で洪水が起こりましたか？今すぐ身の安全を確保しましょう！【ナラデハ】はあなたに最適な水害対策を提案します。以下のリンクから対策診断ページへ進みましょう。, http://localhost:3000/form"
+                text="近所で洪水が起こりましたか？今すぐ身の安全を確保しましょう！【ナラデハ】はあなたに最適な水害対策を提案します。以下のリンクから対策診断ページへ進みましょう。https://naradeha.netlify.app "
             )
         )
     except LineBotApiError as e:
@@ -68,14 +68,19 @@ async def analyze(evacuation_req: EvacuationRequest):
     user_evacuation_judgement = UserEvacuationJudgement(
         user_attribute, current_alert_level, geospatia_analyzer
     )
-    shelter, building = user_evacuation_judgement.judge_what_user_should_do()
+    (
+        should_evacuate,
+        message,
+        shelter,
+        building,
+    ) = user_evacuation_judgement.judge_what_user_should_do()
 
     result = EvacuationResponse(
-        shouldEvacuate=False,
-        message="hellololo",
+        shouldEvacuate=should_evacuate,
+        message=message,
         nearestShelter=None
         if shelter is None
-        else Shelter(name=shelter.name, lat=shelter.lat),
+        else Shelter(name=shelter.name, lat=shelter.lat, lng=shelter.lng),
         userBuilding=None if building is None else Building(),
     )
     return result

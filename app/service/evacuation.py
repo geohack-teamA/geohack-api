@@ -94,33 +94,35 @@ class UserEvacuationJudgement:
     def is_current_level_less_than_flood_level(self) -> bool:
         return False
 
-    def judge_what_user_should_do(self) -> Tuple[Optional[Shelter], Optional[Building]]:
+    def judge_what_user_should_do(
+        self,
+    ) -> Tuple[bool, str, Optional[Shelter], Optional[Building]]:
         current_position = self.user_attribute().position()
         lat, lng = current_position.position()
         user_building = self.geospatial_analyzer().get_building_by_position(lat, lng)
         nearest_shelter = self.geospatial_analyzer().get_nearest_shelter(lat, lng)
         if user_building is None:
             if nearest_shelter is None:
-                return nearest_shelter, user_building
-            return nearest_shelter, None
+                return False, "そのまま自宅待機してください", nearest_shelter, user_building
+            return True, "避難してください", nearest_shelter, None
         if self.may_user_building_been_broken():
             if get_alert_level() == AlertLevel.THREE:
                 if self.does_user_have_difficult_family():
-                    return None, user_building
+                    return True, "避難してください", None, user_building
                 else:
-                    return nearest_shelter, None
+                    return True, "避難してください", nearest_shelter, None
             else:
-                return nearest_shelter, None
+                return True, "避難してください", nearest_shelter, None
         if self.is_building_depth_less_than_flood_level():
             if self.is_current_level_less_than_flood_level():
                 if self.has_enough_stock():
-                    return None, user_building
+                    return False, "そのまま自宅待機してください", None, user_building
                 else:
                     if get_alert_level() == AlertLevel.THREE:
                         if self.does_user_have_difficult_family():
-                            return None, user_building
+                            return False, "そのまま自宅待機してください", None, user_building
                         else:
-                            return nearest_shelter, None
+                            return True, "避難してください", nearest_shelter, None
                     else:
-                        return None, user_building
-        return None, user_building
+                        return False, "そのまま自宅待機してください", None, user_building
+        return False, "そのまま自宅待機してください", None, user_building
