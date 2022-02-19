@@ -1,4 +1,3 @@
-import enum
 from typing import Optional, Tuple
 from app.models.alert_level import AlertLevel
 from app.service.geospatial import Building, GeospatialAnalyzer, Shelter
@@ -103,6 +102,7 @@ class UserEvacuationJudgement:
 
     # 参考：http://www.bousai.go.jp/oukyu/hinankankoku/h30_hinankankoku_guideline/pdf/campaign.pdf
     # をもとにユーザーの状況ごとに適切な避難指示を出す。
+    # TODO: Refactor this logic later
     def judge_what_user_should_do(
         self,
     ) -> Tuple[bool, str, Optional[Shelter], Optional[Building]]:
