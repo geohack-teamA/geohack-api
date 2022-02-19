@@ -18,7 +18,7 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v2
       - name: set up gcp
-        uses: google-github-actions/setup-gcloud@master
+        uses: google-github-actions/setup-gcloud@v0
         with:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
           service_account_key: ${{ secrets.GCP_SA_KEY }}
@@ -26,7 +26,8 @@ jobs:
       - name: Configure docker to use the gcloud cli
         run: gcloud auth configure-docker --quiet
       - name: Build a docker image
-        run: docker build --target prod -t $IMAGE_GCP .
+        run: docker build --target prod -t asia.gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_RUN_SERVICE_NAME }}:${{ github.sha }} .
+        # run: docker build --target prod -t $IMAGE_GCP .
       - name: Push the docker image to Container Registry
         run: docker push $IMAGE_GCP
       - name: Deploy to Cloud Run
