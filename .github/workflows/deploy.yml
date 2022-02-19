@@ -32,10 +32,10 @@ jobs:
         run: docker push $IMAGE_GCP
       - name: Deploy to Cloud Run
         run: |
-            gcloud run deploy $SERVICE_NAME \
+            gcloud run deploy ${{ secrets.GCP_RUN_SERVICE_NAME }} \
               --image $IMAGE_GCP \
               # --port $PORT \
-              --project $GCP_PROJECT_ID \
+              --project ${{ secrets.GCP_PROJECT_ID }} \
               --region $GCP_REGION \
               --platform=managed \
               --allow-unauthenticated \
