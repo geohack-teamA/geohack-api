@@ -39,8 +39,6 @@ class GeospatialAnalyzer:
     def __init__(self, storage: GoogleCloudStorage, mesh_level: uint) -> None:
         self.__storage = storage
         self.__bucket = self.__storage.bucket()
-        # self.__lat = lat
-        # self.__lng = lng
         self.__mesh_level = mesh_level
 
     # ******Getter******
@@ -50,16 +48,10 @@ class GeospatialAnalyzer:
     def bucket(self):
         return self.__bucket
 
-    # def lat(self):
-    #     return self.__lat
-
-    # def lng(self):
-    #     return self.__lng
-
     def mesh_level(self):
         return self.__mesh_level
 
-    # ******Get files******
+    # ******Get files from external datasource******
     def get_geometric_file_by_meshcode(self, meshcode: str):
         geometry_file = self.storage().get_blob_by_name(
             f"buildings/kawasaki/bldg_{meshcode}.geojson"
@@ -79,6 +71,8 @@ class GeospatialAnalyzer:
     # ******Core logics******
     def get_building_by_position(self, lat: float, lng: float) -> Optional[Building]:
         mesh_code = GeospatialAnalyzer.get_meshcode(lat, lng, self.mesh_level())
+
+        # mesh_codeから対象のGeoJSONファイルをGCSから取得
         geometry_file = self.get_geometric_file_by_meshcode(mesh_code)
         if geometry_file is None:
             return None
@@ -87,6 +81,8 @@ class GeospatialAnalyzer:
         )
         point = Point(lng, lat)  # noqa
         position = gpd.GeoDataFrame({"geometry": point}, [0])
+
+        # ユーザー位置情報とGeoJSONデータを空間結合・ユーザーが居る建物情報を取得
         result = gpd.sjoin(position, geo_data_frame, how="inner", op="within")
         building = result.sort_values(by="depth", ascending=False).iloc[0]
         building_id = building[2]
@@ -94,12 +90,16 @@ class GeospatialAnalyzer:
         height = building[4]
         depth = building[5]
         depth_rank = building[6]
+
         return Building(building_id, storeys_above_ground, height, depth, depth_rank)
 
     def get_nearest_shelter(self, lat: float, lng: float) -> Optional[Shelter]:
+        # 避難所一覧情報(lat, lng, name)をGCSから取得
         shelter_blob = self.get_shelter_file()
         if shelter_blob is None:
             return None
+
+        # 避難所一覧から最寄りの避難所を取得
         data_frame = pd.read_csv(
             GoogleCloudStorage.convert_blob_to_byte_string(shelter_blob)  # noqa
         )
@@ -109,6 +109,7 @@ class GeospatialAnalyzer:
             lambda x: geodesic([x["lat"], x["lon"]], [x["gps_lat"], x["gps_lon"]]).m,
             axis=1,
         )
+
         nearest_shelter = data_frame.sort_values(by="distance").iloc[0]
         shelter_name = nearest_shelter[1]
         shelter_lat = nearest_shelter[2]

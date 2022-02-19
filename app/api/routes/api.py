@@ -6,17 +6,15 @@ from app.schemas.evacuation import (
     EvacuationResponse,
     Shelter,
 )
-from app.service.evacuation import Position, UserAttribute, UserEvacuationJudgement
+from app.service.evacuation import UserAttribute, UserEvacuationJudgement
 from app.service.geospatial import GeospatialAnalyzer
 from fastapi import APIRouter
 from linebot import LineBotApi, WebhookHandler
-from linebot.exceptions import InvalidSignatureError, LineBotApiError
-from linebot.models import MessageEvent, TextMessage, TextSendMessage
-from app.api.routes import example
+from linebot.exceptions import LineBotApiError
+from linebot.models import TextSendMessage
 from app.core.config import LINE_CHANNEL_ACCESS_TOKEN, LINE_CHANNEL_SECRET
 
 router = APIRouter()
-router.include_router(example.router, tags=["example"], prefix="/examples")
 
 line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(LINE_CHANNEL_SECRET)
@@ -32,23 +30,14 @@ async def notify():
         )
     except LineBotApiError as e:
         print(e)
-    return {"text": "hello"}
-
-
-@router.get("/form", response_model=EvacuationResponse)
-async def form():
-    result = EvacuationResponse(
-        shouldEvacuate=False,
-        message="hellololo",
-        nearestShelter=None,
-        userBuilding=None,
-    )
-    return result
+    return {"message": "Notification has been sent"}
 
 
 @router.post("/analyze", response_model=EvacuationResponse)
 async def analyze(evacuation_req: EvacuationRequest):
     storage = GoogleCloudStorage()
+
+    # ***Params from client side***
     lat = evacuation_req.lat
     lng = evacuation_req.lng
     current_floor_level = evacuation_req.currentLevel
@@ -56,6 +45,7 @@ async def analyze(evacuation_req: EvacuationRequest):
     enough_stock = evacuation_req.hasEnoughStock
     has_safe_relative = evacuation_req.hasSafeRelative
     mesh_level = 3
+
     geospatia_analyzer = GeospatialAnalyzer(storage, mesh_level)
     user_attribute = UserAttribute(
         lat,
@@ -64,18 +54,18 @@ async def analyze(evacuation_req: EvacuationRequest):
         has_difficulty_with_family,
         enough_stock,
     )
-    current_alert_level = AlertLevel.THREE
     user_evacuation_judgement = UserEvacuationJudgement(
-        user_attribute, current_alert_level, geospatia_analyzer
+        user_attribute, geospatia_analyzer
     )
+
+    # ***Results of analysis***
     (
         should_evacuate,
         message,
         shelter,
         building,
     ) = user_evacuation_judgement.judge_what_user_should_do()
-
-    result = EvacuationResponse(
+    response = EvacuationResponse(
         shouldEvacuate=should_evacuate,
         message=message,
         nearestShelter=None
@@ -91,4 +81,4 @@ async def analyze(evacuation_req: EvacuationRequest):
             depthRank=building.depth_rank,
         ),
     )
-    return result
+    return response

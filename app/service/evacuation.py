@@ -4,6 +4,7 @@ from app.service.geospatial import Building, GeospatialAnalyzer, Shelter
 
 
 def get_alert_level() -> AlertLevel:
+    # TODO: fetch data from extenal API
     alert_level = AlertLevel.THREE
     return alert_level
 
@@ -54,11 +55,10 @@ class UserEvacuationJudgement:
     def __init__(
         self,
         user_attribute: UserAttribute,
-        current_alert_level: AlertLevel,
         geospatial_analyzer: GeospatialAnalyzer,
     ):
         self.__user_attribute = user_attribute
-        self.__current_alert_level = current_alert_level
+        self.__current_alert_level = get_alert_level()
         self.__geospatial_analyzer = geospatial_analyzer
 
     def user_attribute(self) -> UserAttribute:

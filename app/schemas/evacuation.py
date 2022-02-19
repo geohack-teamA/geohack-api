@@ -1,7 +1,10 @@
 from typing import Optional
+from fastapi import Response
 from pydantic import BaseModel
 
-
+# ******************************
+# Common
+# ******************************
 class Shelter(BaseModel):
     name: str
     lat: float
@@ -16,6 +19,21 @@ class Building(BaseModel):
     depthRank: float
 
 
+# ******************************
+# Request
+# ******************************
+class EvacuationRequest(BaseModel):
+    lat: float
+    lng: float
+    currentLevel: int
+    hasDifficultFamily: bool
+    hasSafeRelative: bool
+    hasEnoughStock: bool
+
+
+# ******************************
+# Response
+# ******************************
 class EvacuationResponse(BaseModel):
     shouldEvacuate: bool = False
     message: str = "hello"
@@ -24,12 +42,3 @@ class EvacuationResponse(BaseModel):
 
     class Config:
         arbitrary_types_allowed = True
-
-
-class EvacuationRequest(BaseModel):
-    lat: float
-    lng: float
-    currentLevel: int
-    hasDifficultFamily: bool
-    hasSafeRelative: bool
-    hasEnoughStock: bool
