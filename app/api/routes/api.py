@@ -56,7 +56,6 @@ async def analyze(evacuation_req: EvacuationRequest):
     enough_stock = evacuation_req.hasEnoughStock
     has_safe_relative = evacuation_req.hasSafeRelative
     mesh_level = 3
-    print("lat----------", evacuation_req.lat)
     geospatia_analyzer = GeospatialAnalyzer(storage, mesh_level)
     user_attribute = UserAttribute(
         lat,
